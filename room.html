@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>disChat</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+<link href="../css/style.css" rel="stylesheet" type="text/css" media="all">
+<link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Courgette" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Indie+Flower" rel="stylesheet">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="col-sm-3 list-column">
+            <h3><span class="glyphicon glyphicon-user"></span>&nbsp;Participants</h3>
+            <div class="participants">
+                <p><img src="../assets/Lion.png">Bogdan</p>
+                <p><img src="../assets/Duck.png">Oana</p>
+                <p><img src="../assets/Pig.png">Dan</p>
+                <p><img src="../assets/Dog.png">Alexandra</p>
+            </div>
+            <h4><span class="glyphicon glyphicon-remove"></span>&nbsp;Leave room</h4>
+        </div>
+        <div class="col-sm-9 messages-column">
+            <h3><span class="glyphicon glyphicon-comment"></span>&nbsp;Live Messages Chat</h3>
+            <p class="started"><span class="glyphicon glyphicon-time"></span>&nbsp;Started: Sat, 11 Feb 2017 13:31:39 GMT</p>
+            <div class="messages-container">
+                
+            </div>
+            <div class="send-message">
+                <textarea class="col-md-10" placeholder="Enter your message..." id="message-text"></textarea>
+                <button type="button" class="btn btn-default col-md-2 send" id="send">Send</button>
+            </div>
+            </div>
+    </div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/trianglify/1.0.1/trianglify.min.js"></script>
+<script type="text/javascript" src="../js/jquery.noty.packaged.min.js"></script>
+<script type="text/javascript" src="../js/script-room.js"></script>
+<script>
+  var roomCode = window.location.pathname.split('/')[2];
+  var socket = io("/"+roomCode);
+  //.of('/my-namespace');
+  socket.emit('user connected', "hell yeah bitcheeeez");
+  socket.on('user connected', function(msg){
+    var n = noty({
+        layout: "bottomRight",
+        text: msg,
+        type: "success",
+        timeout: 1000
+    });
+  });
+  $(window).bind('beforeunload', function(){
+    socket.emit('disconnect', "RIP");
+  });
+  console.log(socket)
+  socket.on('disconnect', function(msg){
+    var n = noty({
+        layout: "bottomRight",
+        text: msg,
+        type: "error",
+        timeout: 1000
+    });
+  });
+  $('#send').on("click", function(){
+    socket.emit('chat message', $('#message-text').val());
+    $('#message-text').val('');
+    return false;
+  });
+  socket.on('chat message', function(msg){
+    $('.messages-container').append('<div class="dialogbox"><div class="body"><span class="tip tip-left"></span><div class="message"><span>'+msg+'</span></div></div></div>');
+  });
+</script>
+</body>
+</html>
